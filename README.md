@@ -1,3 +1,3 @@
 *Stay Tuned...*
 
-[License][./LICENSE]
+[License](./LICENSE)
