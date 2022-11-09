@@ -5,6 +5,11 @@
 	import Constants from './Constants';
 	import { ClientGameState } from './Types';
 
+	// Exports
+
+	export let debugGridVisible = true
+
+	// Vars
 
 	let cam_x = tweened(0, { duration: Constants.CAMERA_TRANSITION_DURATION_MS, easing: quadOut });
 	let cam_y = tweened(0, { duration: Constants.CAMERA_TRANSITION_DURATION_MS, easing: quadOut });
@@ -19,6 +24,7 @@
 	// TODO: Update position only based as a function of player position
 	// TODO: Make this Global
 	var gs: ClientGameState = new ClientGameState();
+	console.log(gs)
 
 
 	$: $debugMessages["player"] = [gs.player.x, gs.player.y]
@@ -31,6 +37,8 @@
 	function cam2vis(c: number): number {
 		return  c * 100;
 	}
+
+	let mapobj = [1, 2, 3]
 
 	// TEST BASIC WEBSOCKETS FIRST
 	function handleKeypress(e: KeyboardEvent): void {
@@ -45,18 +53,30 @@
 
 		switch (e.code) {
 			case 'ArrowUp':
+				if (!gs.map.isValidPos(gs.player.x, gs.player.y - 1)) {
+					break;
+				}
 				gs.player.y -= 1;
 				$player_y = player2vis(gs.player.y);
 				break;
 			case 'ArrowRight':
+				if (!gs.map.isValidPos(gs.player.x + 1, gs.player.y)) {
+					break;
+				}
 				gs.player.x += 1;
 				$player_x = player2vis(gs.player.x);
 				break;
 			case 'ArrowDown':
+				if (!gs.map.isValidPos(gs.player.x, gs.player.y + 1)) {
+					break;
+				}
 				gs.player.y += 1;
 				$player_y = player2vis(gs.player.y);
 				break;
 			case 'ArrowLeft':
+				if (!gs.map.isValidPos(gs.player.x - 1, gs.player.y)) {
+					break;
+				}
 				gs.player.x -= 1;
 				$player_x = player2vis(gs.player.x);
 				break;
@@ -97,9 +117,11 @@
 		<defs>
 			<pattern id="svg-bgtile" viewBox="0,0,100,100" width={Constants.GRID_CELL_SIZE_PX} height={Constants.GRID_CELL_SIZE_PX} patternUnits="userSpaceOnUse">
 				<rect x="0" y="0" width="100" height="100" fill="#E5EEFA" />
-				<circle cx="50" cy="50" r="10" fill="black" />
-				<line x1="0" y1="50" x2="100" y2="50" stroke="#00000020" />
-				<line x1="50" y1="0" x2="50" y2="100" stroke="#00000020" />
+				<circle cx="50" cy="50" r="3" fill="#999999" />
+				{#if debugGridVisible}
+					<line x1="0" y1="50" x2="100" y2="50" stroke="#00000020" />
+					<line x1="50" y1="0" x2="50" y2="100" stroke="#00000020" />
+				{/if}
 			</pattern>
 		</defs>
 
@@ -115,7 +137,9 @@
 			<circle id="svg-player" cx={$player_x} cy={$player_y} r="40" fill={player_fill} />
 
 			<g id="svg-objects">
-
+			{#each mapobj as entity}
+				<circle cx={50 + 100 * entity} cy={50 + 100 * entity} r="20" fill="blue" />
+			{/each}
 			</g>
 		</g>
 	</svg>
@@ -142,7 +166,7 @@
 	}
 
 	#svg-player {
-		filter: drop-shadow(0 0 5px rgb(0 0 0 / 0.6));
+		filter: drop-shadow(0 0 3px rgb(0 0 0 / 0.8));
 	}
 
 </style>

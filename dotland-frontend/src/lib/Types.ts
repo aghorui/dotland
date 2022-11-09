@@ -131,20 +131,61 @@ export class Cell {
  */
 export class Map {
 	data: Cell[];
-	width: number = 20;
-	height: number = 50;
+	width: number;
+	height: number;
 
+	/**
+	 * Gets the requested cell. throws an exception if out of bounds
+	 */
 	get(x: number, y: number): Cell {
-		if (x < 0 || y < 0 || x > (width - 1) || y > (height - 1)) {
-			throw new DLError(`BUG: required coordinates are out of bounds (${x}, ${y}).`)
+		if (x < 0 || y < 0 || x > (this.width - 1) || y > (this.height - 1)) {
+			throw new DLError(`BUG: required coordinates are out of bounds (${x}, ${y}).`);
 		}
-		return data[x * width + height];
+		return data[x * this.width + this.height];
+	}
+
+	/**
+	 * Reports if the requested Cell is valid or not.
+	 */
+	isValidPos(x: number, y: number): bool {
+		if (x < 0 || y < 0 || x > (this.width - 1) || y > (this.height - 1)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Reports if the requested Cell is a free cell or not, that is, if the
+	 * player can put itself into that cell. This does bounds checking as
+	 * well.
+	 */
+	isFree(x: number, y: number): bool {
+		if (x < 0 || y < 0 || x > (this.width - 1) || y > (this.height - 1)) {
+			return false;
+		}
+
+		// TODO add condition here to check for obstructions.
+		if (this.get(x,y) !== undefined) {
+			return false;
+		}
+
+		return true;
+	}
+
+	constructor(width: number = 20, height: number = 50) {
+		// The array is populated using the Array constructor currently. This
+		// provides us with an array with blank items. It might be a better
+		// idea to use some sort of sparse matrix-aware implementation but let's
+		// just get the the thing going for now.
+		// We will use undefined for representing an empty cell.
+		this.data = Array(width * height);
+		this.width = width;
+		this.height = height;
 	}
 };
 
 /**
  * The main object that the client will write to.
- *
  */
 export class ClientGameState {
 	gameInfo: Game = new Game();
